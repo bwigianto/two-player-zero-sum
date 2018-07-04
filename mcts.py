@@ -4,14 +4,14 @@ import copy
 import datetime
 
 class MonteCarlo():
-    def __init__(self, board):
+    def __init__(self, board, max_iters, explore_coefficient, max_depth):
         self.wins = {}
         self.plays = {}
         self.board = board
         self.states = [board.start()]
-        self.max_iters = 100
-        self.C = 1.4 #exploration coefficient
-        self.max_depth = 9
+        self.max_iters = max_iters
+        self.C = explore_coefficient
+        self.max_depth = max_depth
 
     def update(self, a):
         self.states.append(self.board.next_state(self.states[-1], a))
@@ -111,3 +111,5 @@ class MonteCarlo():
             plays[(player, self.board.hashable(state))] += 1
             if player == winner:
                 wins[(player, self.board.hashable(state))] += 1
+            elif winner != -1:
+                wins[(player, self.board.hashable(state))] -= 1
