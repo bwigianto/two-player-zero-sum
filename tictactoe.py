@@ -50,6 +50,8 @@ class Board():
         return 0
 
     def finished(self, state):
+        if self.check_win_for(1, state) or self.check_win_for(2, state):
+            return True
         for x in range(3):
             for y in range(3):
                 if state[x][y] == '_':
