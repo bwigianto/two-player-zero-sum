@@ -13,8 +13,8 @@ class MonteCarlo():
         self.C = explore_coefficient
         self.max_depth = max_depth
 
-    def update(self, a):
-        self.states.append(self.board.next_state(self.states[-1], a))
+    def update(self, player, a):
+        self.states.append(self.board.next_state(player, self.states[-1], a))
 
     def state(self):
         return self.states[-1]
@@ -30,7 +30,7 @@ class MonteCarlo():
         return self.wins.get((player, self.board.hashable(s)), 0) / self.plays.get((player, self.board.hashable(s)), 1)
 
     def mcts_argmax(self, state, player, legal_actions):
-        next_actions_and_states = self.next_actions_and_states(state, legal_actions)
+        next_actions_and_states = self.next_actions_and_states(player, state, legal_actions)
         _, a_max = max((self.win_rate(a, s, player), a) for a, s in next_actions_and_states)
         # Display the stats for each possible play.
         for x in sorted(
@@ -44,10 +44,9 @@ class MonteCarlo():
             print( "{3}: {0:.2f}% ({1} / {2})".format(*x))
         return a_max
 
-    def pick_action(self):
+    def pick_action(self, player):
         state = self.states[-1]
-        player = self.board.current_player(state)
-        legal_actions = self.board.legal_plays(self.states[:])
+        legal_actions = self.board.legal_actions(self.states[:])
         # Bail out early if there is no real choice to be made.
         if len(legal_actions) == 1:
             return legal_actions[0]
@@ -57,8 +56,8 @@ class MonteCarlo():
 
         return self.mcts_argmax(state, player, legal_actions)
 
-    def next_actions_and_states(self, state, legal_actions):
-        return [(a, self.board.next_state(state, a)) for a in legal_actions]
+    def next_actions_and_states(self, player, state, legal_actions):
+        return [(a, self.board.next_state(player, state, a)) for a in legal_actions]
 
     def has_all_stats(self, player, next_actions_and_states):
          return all(self.plays.get((player, self.board.hashable(s))) for _, s in next_actions_and_states)
@@ -71,9 +70,10 @@ class MonteCarlo():
         states = copy.deepcopy(self.states)
 
         expand = True
+        winner = -1
         for t in range(self.max_depth):
-            legal_actions = self.board.legal_plays(states)
-            next_actions_and_states = self.next_actions_and_states(state, legal_actions)
+            legal_actions = self.board.legal_actions(states)
+            next_actions_and_states = self.next_actions_and_states(player, state, legal_actions)
             if self.has_all_stats(player, next_actions_and_states):
                 # If we have stats on all of the legal moves here, use them.
                 log_total = log(
@@ -84,32 +84,27 @@ class MonteCarlo():
                     for a, s in next_actions_and_states
                 )
             else:
-                # Otherwise, just make an arbitrary decision.
+                # Otherwise, choose randomly
                 action, state = choice(next_actions_and_states)
 
             states.append(state)
-
-            # `player` here and below refers to the player
-            # who moved into that particular state.
             if expand and (player, self.board.hashable(state)) not in plays:
                 expand = False
                 plays[(player, self.board.hashable(state))] = 0
                 wins[(player, self.board.hashable(state))] = 0
-                if t + 1 > self.max_depth:
-                    self.max_depth = t + 1
 
             visited.add((player, self.board.hashable(state)))
 
-            player = self.board.current_player(state)
+            player = self.board.next_player(player)
             if self.board.finished(state):
                 winner = self.board.winner(state)
                 break
 
         for player, state in visited:
-            if (player, self.board.hashable(state)) not in plays:
+            if (player, state) not in plays:
                 continue
-            plays[(player, self.board.hashable(state))] += 1
+            plays[(player, state)] += 2
             if player == winner:
-                wins[(player, self.board.hashable(state))] += 1
-            elif winner != -1:
-                wins[(player, self.board.hashable(state))] -= 1
+                wins[(player, state)] += 2
+            elif winner == 0:
+                wins[(player, state)] += 1

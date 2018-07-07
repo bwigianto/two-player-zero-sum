@@ -4,27 +4,21 @@ class Board():
     def start(self):
         return [['_', '_', '_'], ['_', '_', '_'], ['_', '_', '_']]
 
-    def current_player(self, state):
-        # Takes the game state and returns the current player's
-        # number.
-        ct = 0
-        for a in state:
-            for c in a:
-                ct += 1 if c == '_' else 0
-        return 1 if ct % 2 == 1 else 2
+    def next_player(self, player):
+        return 1 if player == 2 else 2
 
     def hashable(self, state):
         return str(state)
 
-    def next_state(self, state, play):
+    def next_state(self, player, state, action):
         # Takes the game state, and the move to be applied.
         # Returns the new game state.
-        (x, y) = play
+        (x, y) = action
         state_cp = copy.deepcopy(state)
-        state_cp[x][y] = self.current_player(state)
+        state_cp[x][y] = player
         return state_cp
 
-    def legal_plays(self, state_history):
+    def legal_actions(self, state_history):
         # Takes a sequence of game states representing the full
         # game history, and returns the full list of moves that
         # are legal plays for the current player.
@@ -46,8 +40,8 @@ class Board():
         if self.check_win_for(2, state):
             return 2
         if self.finished(state):
-            return -1
-        return 0
+            return 0 #draw
+        return -1 #not finished yet
 
     def finished(self, state):
         if self.check_win_for(1, state) or self.check_win_for(2, state):
