@@ -20,8 +20,7 @@ class MonteCarlo():
         return self.states[-1]
 
     def pretty_print(self):
-        state = self.state()
-        print(f"{state[0]}\n{state[1]}\n{state[2]}")
+        self.board.pretty_print(self.states[-1])
 
     def finished(self):
         return self.board.finished(self.state())

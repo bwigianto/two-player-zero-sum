@@ -1,6 +1,6 @@
 import copy
 
-class Board():
+class TicTacToe():
     def start(self):
         return [['_', '_', '_'], ['_', '_', '_'], ['_', '_', '_']]
 
@@ -81,3 +81,6 @@ class Board():
         if count == 3:
             return True
         return False
+
+    def pretty_print(self, state):
+        print(f"{state[0]}\n{state[1]}\n{state[2]}")

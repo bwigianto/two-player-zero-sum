@@ -8,7 +8,7 @@ def get_action():
     y = int(parts[1])
     return (x, y)
 
-mcts = MonteCarlo(board=Board(),
+mcts = MonteCarlo(board=TicTacToe(),
     max_iters=100,
     explore_coefficient=1.4,
     max_depth=9)
