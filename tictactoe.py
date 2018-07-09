@@ -18,12 +18,11 @@ class Board():
         state_cp[x][y] = player
         return state_cp
 
-    def legal_actions(self, state_history):
+    def legal_actions(self, state):
         # Takes a sequence of game states representing the full
         # game history, and returns the full list of moves that
         # are legal plays for the current player.
         legal = []
-        state = state_history[-1]
         for i in range(len(state)):
             for j in range(len(state[i])):
                 if state[i][j] == '_':

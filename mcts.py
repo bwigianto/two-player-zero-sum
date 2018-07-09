@@ -46,7 +46,7 @@ class MonteCarlo():
 
     def pick_action(self, player):
         state = self.states[-1]
-        legal_actions = self.board.legal_actions(self.states[:])
+        legal_actions = self.board.legal_actions(state)
         # Bail out early if there is no real choice to be made.
         if len(legal_actions) == 1:
             return legal_actions[0]
@@ -72,7 +72,7 @@ class MonteCarlo():
         expand = True
         winner = -1
         for t in range(self.max_depth):
-            legal_actions = self.board.legal_actions(states)
+            legal_actions = self.board.legal_actions(states[-1])
             next_actions_and_states = self.next_actions_and_states(player, state, legal_actions)
             if self.has_all_stats(player, next_actions_and_states):
                 # If we have stats on all of the legal moves here, use them.
